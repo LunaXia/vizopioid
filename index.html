@@ -139,7 +139,6 @@ function update(selectedVar) {
         .attr("width", x.bandwidth())
         .attr("height", 2)
         .transition()
-        .duration(500)
         .attr("y", d => y(d[selectedVar]))
         .attr("height", d => height - y(d[selectedVar]))
         .attr("fill", "#404080")
