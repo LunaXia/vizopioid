@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<head><meta charset="utf-8">
+<meta charset="utf-8">
 
 <!-- Load d3.js -->
-<script src="https://d3js.org/d3.v4.js"></script>
+<script src="https://d3js.org/d3.v7.min.js"></script>
 <script src="https://rawgit.com/susielu/d3-annotation/master/d3-annotation.min.js"></script>
 <title>Drug Overdose Deaths in the United States</title>
 
@@ -77,49 +77,47 @@ According to CDC's report, "nearly 841,000 people have died since 1999 from a dr
 <button class = "middle2" onclick="update('overdose_2018')">2018</button>
 <button class = "middle3" onclick="update('overdose_2019')">2019</button>
 
-
 <!-- Create a div where the graph will take place -->
 <div id="my_dataviz" class="center"></div>
 
-
 <script>
+
 // set the dimensions and margins of the graph
-var margin = {top: 10, right: 30, bottom: 70, left: 60},
+const margin = {top: 10, right: 30, bottom: 70, left: 60},
     width = 1200 - margin.left - margin.right,
     height = 500 - margin.top - margin.bottom;
 
 // append the svg object to the body of the page
-var svg = d3.select("#my_dataviz")
+const svg = d3.select("#my_dataviz")
   .append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
   .append("g")
-    .attr("transform",
-          "translate(" + margin.left + "," + margin.top + ")");
+    .attr("transform", `translate(${margin.left},${margin.top})`);
 
 
 // A function that create / update the plot for a given variable:
 function update(selectedVar) {
   svg.selectAll("*").remove();
+
   // Initialize the X axis
-  var x = d3.scaleBand()
+  const x = d3.scaleBand()
     .range([ 0, width ])
     .padding(0.2);
-  var xAxis = svg.append("g")
-    .attr("transform", "translate(0," + height + ")")
+  const xAxis = svg.append("g")
+    .attr("transform", `translate(0,${height})`);
 
   // Initialize the Y axis
-  var y = d3.scaleLinear()
-    .domain([0,7000])
+  const y = d3.scaleLinear()
     .range([ height, 0]);
-  var yAxis = svg.append("g")
-    .attr("class", "myYaxis")
+  const yAxis = svg.append("g")
+    .attr("class", "myYaxis");
 
   // Parse the Data
-  d3.csv("https://raw.githubusercontent.com/LunaXia/vizopioid/main/data/us_drugoverdose.csv", function(data) {
+  d3.csv("https://raw.githubusercontent.com/LunaXia/vizopioid/main/data/us_drugoverdose.csv").then( function(data) {
 
     // X axis
-    x.domain(data.map(function(d) { return d.state; }))
+    x.domain(data.map(d => d.state));
     xAxis.call(d3.axisBottom(x)).selectAll("text")
         .style("text-anchor", "end")
         .attr("dx", "-.8em")
@@ -131,58 +129,28 @@ function update(selectedVar) {
     yAxis.call(d3.axisLeft(y));
 
     // variable u: map data to existing bars
-    var u = svg.selectAll("rect")
+    const u = svg.selectAll("rect")
       .data(data)
 
     // update bars
-    u
-      .enter()
-      .append("rect")
-      .merge(u)
-        .attr("x", function(d) { return x(d.state); })
+    u.join("rect")
+        .attr("x", d => x(d.state))
+        .attr("y", 418)
         .attr("width", x.bandwidth())
-        .attr("y",418)
         .attr("height", 2)
         .transition()
         .duration(1000)
-        .attr("y", function(d) { return y(d[selectedVar]); })
-        .attr("height", function(d) { return height-y(d[selectedVar]); })
+        .attr("y", d => y(d[selectedVar]))
+        .attr("height", d => height - y(d[selectedVar]))
         .attr("fill", "#404080")
         .style("opacity", 0.6)
 
-      if (selectedVar == "overdose_2017"){
-        var annotations = [
-            {
-              note: {
-                label: "In 2017, 5302 drug overdose deaths occurred in California and that is the highest among nationwide.",
-                title: "Drug Overdose in Pennsylvania",
-                align: "middle",  // try right or left
-                wrap: 250,  // try something smaller to see text split in several lines
-                padding: 10   // More = text lower
-              },
-              connector: {
-                end: "dot" // 'dot' also available
-              },
-              color: ["#69b3a2"],
-              x: 837,
-              y: 130,
-              dy: -50,
-              dx: 140
-            }
-          ]
-
-        // Add annotation to the chart
-        var makeAnnotations = d3.annotation().annotations(annotations)
-        svg.append("g").call(makeAnnotations)
-
-        }
-
-        if (selectedVar == "overdose_2018"){
-          var annotations = [
+    if (selectedVar == "overdose_2017"){
+      var annotations = [
               {
                 note: {
-                  label: "In 2018, drug overdose deaths decreased in the northeast region (e.g., Pennsylvania, Ohio) that have highest drug overdoes deaths in the previous year. During the same year, drug overdose deaths in the Midwestern Region increased. The increase rate in Missouri was the highest in 2018. ",
-                  title: "Drug Overdose in Missouri",
+                  label: "In 2017, 5302 drug overdose deaths occurred in California and that is the highest among nationwide.",
+                  title: "Drug Overdose in Pennsylvania",
                   align: "middle",  // try right or left
                   wrap: 250,  // try something smaller to see text split in several lines
                   padding: 10   // More = text lower
@@ -191,46 +159,74 @@ function update(selectedVar) {
                   end: "dot" // 'dot' also available
                 },
                 color: ["#69b3a2"],
-                x: 555,
-                y: 340,
-                dy: -120,
-                dx: 10
+                x: 837,
+                y: 130,
+                dy: -50,
+                dx: 140
               }
             ]
 
-            // Add annotation to the chart
-          var makeAnnotations = d3.annotation().annotations(annotations)
-          svg.append("g").call(makeAnnotations)
+          // Add annotation to the chart
+      var makeAnnotations = d3.annotation().annotations(annotations)
+      svg.append("g").call(makeAnnotations)
 
           }
 
-          if (selectedVar == "overdose_2019"){
-            var annotations = [
+      if (selectedVar == "overdose_2018"){
+      var annotations = [
                 {
                   note: {
-                    label: "In 2019, drug overdose deaths increased rapidly in California. California had the highest drug overdose deaths in 2018 -- 6,668 deaths. ",
-                    title: "Drug Overdose in California",
+                    label: "In 2018, drug overdose deaths decreased in the northeast region (e.g., Pennsylvania, Ohio) that have highest drug overdoes deaths in the previous year. During the same year, drug overdose deaths in the Midwestern Region increased. The increase rate in Missouri was the highest in 2018. ",
+                    title: "Drug Overdose in Missouri",
                     align: "middle",  // try right or left
-                    wrap: 350,  // try something smaller to see text split in several lines
+                    wrap: 250,  // try something smaller to see text split in several lines
                     padding: 10   // More = text lower
                   },
                   connector: {
                     end: "dot" // 'dot' also available
                   },
                   color: ["#69b3a2"],
-                  x: 100,
-                  y: 75,
-                  dy: -0.1,
-                  dx: 190
+                  x: 555,
+                  y: 340,
+                  dy: -120,
+                  dx: 10
                 }
               ]
 
               // Add annotation to the chart
-            var makeAnnotations = d3.annotation().annotations(annotations)
-            svg.append("g").call(makeAnnotations)
+      var makeAnnotations = d3.annotation().annotations(annotations)
+      svg.append("g").call(makeAnnotations)
 
             }
+
+      if (selectedVar == "overdose_2019"){
+      var annotations = [
+                  {
+                    note: {
+                      label: "In 2019, drug overdose deaths increased rapidly in California. California had the highest drug overdose deaths in 2018 -- 6,668 deaths. ",
+                      title: "Drug Overdose in California",
+                      align: "middle",  // try right or left
+                      wrap: 350,  // try something smaller to see text split in several lines
+                      padding: 10   // More = text lower
+                    },
+                    connector: {
+                      end: "dot" // 'dot' also available
+                    },
+                    color: ["#69b3a2"],
+                    x: 100,
+                    y: 75,
+                    dy: -0.1,
+                    dx: 190
+                  }
+                ]
+
+                // Add annotation to the chart
+      var makeAnnotations = d3.annotation().annotations(annotations)
+      svg.append("g").call(makeAnnotations)
+
+              }
   })
+
 }
 
 // Initialize plot
