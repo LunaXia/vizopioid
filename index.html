@@ -98,7 +98,7 @@ const svg = d3.select("#my_dataviz")
 
 // A function that create / update the plot for a given variable:
 function update(selectedVar) {
-  svg.selectAll("*").remove();
+  svg.selectAll("text").remove();
 
   // Initialize the X axis
   const x = d3.scaleBand()
